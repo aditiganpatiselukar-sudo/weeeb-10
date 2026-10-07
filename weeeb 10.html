@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Expense Tracker</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={darkMode:"class"}
+</script>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-950 min-h-screen transition-all duration-300">
+
+<header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-lg">
+<div class="max-w-6xl mx-auto px-5 py-6">
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+<div>
+<h1 class="text-3xl sm:text-4xl font-bold">💰 Smart Expense Tracker</h1>
+<p class="text-indigo-100 mt-1">Track your money. Control your spending.</p>
+</div>
+
+<div class="text-center bg-white/20 px-5 py-3 rounded-2xl">
+<p class="font-bold">Aditi Selukar</p>
+<p class="text-sm">USN: CM25064</p>
+</div>
+
+<button onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl">
+🌙
+</button>
+</div>
+</div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+<section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+
+<div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
+<p class="text-gray-500 dark:text-gray-400">Total Balance</p>
+<h2 id="balance" class="text-3xl font-bold text-indigo-600 mt-2">₹0</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
+<p class="text-gray-500 dark:text-gray-400">Total Income</p>
+<h2 id="income" class="text-3xl font-bold text-green-500 mt-2">₹0</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
+<p class="text-gray-500 dark:text-gray-400">Total Expenses</p>
+<h2 id="expense" class="text-3xl font-bold text-red-500 mt-2">₹0</h2>
+</div>
+
+</section>
+
+<section class="bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-6 sm:p-8 mb-8">
+
+<h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+➕ Add Transaction
+</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+<input id="description" type="text"
+placeholder="Transaction description"
+class="px-4 py-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+
+<input id="amount" type="number"
+placeholder="Amount ₹"
+class="px-4 py-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+
+<select id="type"
+class="px-4 py-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+<option value="income">💚 Income</option>
+<option value="expense">❤️ Expense</option>
+</select>
+
+<button onclick="addTransaction()"
+class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl px-5 py-3 transition transform hover:scale-105">
+Add Transaction
+</button>
+
+</div>
+
+</section>
+
+<section class="bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-6 sm:p-8">
+
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+
+<h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+📋 Transaction History
+</h2>
+
+<input id="search" oninput="displayTransactions()" type="text"
+placeholder="🔍 Search transaction..."
+class="w-full sm:w-64 px-4 py-2 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+
+</div>
+
+<div id="transactionList" class="space-y-4"></div>
+
+<div id="empty" class="text-center py-10 text-gray-400">
+<div class="text-5xl mb-3">💳</div>
+<p class="font-semibold">No transactions yet</p>
+<p class="text-sm">Add your first transaction above.</p>
+</div>
+
+</section>
+
+</main>
+
+<footer class="text-center py-6 text-gray-500 dark:text-gray-400">
+<p class="font-semibold text-indigo-600">Aditi Selukar</p>
+<p>USN: CM25064</p>
+<p class="text-sm mt-1">Smart Expense Tracker © 2026</p>
+</footer>
+
+<script>
+
+let transactions=[];
+
+function addTransaction(){
+
+let description=document.getElementById("description").value.trim();
+let amount=document.getElementById("amount").value;
+let type=document.getElementById("type").value;
+
+if(description==="" || amount==="" || amount<=0){
+alert("Please enter valid transaction details!");
+return;
+}
+
+transactions.push({
+id:Date.now(),
+description:description,
+amount:Number(amount),
+type:type
+});
+
+document.getElementById("description").value="";
+document.getElementById("amount").value="";
+
+displayTransactions();
+}
+
+function deleteTransaction(id){
+
+transactions=transactions.filter(transaction=>transaction.id!==id);
+
+displayTransactions();
+}
+
+function displayTransactions(){
+
+let list=document.getElementById("transactionList");
+let empty=document.getElementById("empty");
+let search=document.getElementById("search").value.toLowerCase();
+
+let filtered=transactions.filter(transaction=>
+transaction.description.toLowerCase().includes(search)
+);
+
+list.innerHTML="";
+
+if(filtered.length===0){
+
+empty.style.display="block";
+
+}else{
+
+empty.style.display="none";
+
+filtered.forEach(transaction=>{
+
+let isIncome=transaction.type==="income";
+
+let item=document.createElement("div");
+
+item.className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-2xl border dark:border-gray-700 hover:shadow-md transition";
+
+item.innerHTML=`
+
+<div class="flex items-center gap-4">
+
+<div class="w-12 h-12 rounded-full flex items-center justify-center ${isIncome?'bg-green-100 text-green-600':'bg-red-100 text-red-600'}">
+${isIncome?'↑':'↓'}
+</div>
+
+<div>
+<h3 class="font-semibold text-gray-800 dark:text-white">
+${transaction.description}
+</h3>
+
+<p class="text-sm text-gray-500">
+${isIncome?'Income':'Expense'}
+</p>
+</div>
+
+</div>
+
+<div class="flex items-center gap-4">
+
+<span class="font-bold ${isIncome?'text-green-500':'text-red-500'}">
+${isIncome?'+':'-'} ₹${transaction.amount}
+</span>
+
+<button onclick="deleteTransaction(${transaction.id})"
+class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-2 rounded-xl">
+🗑️
+</button>
+
+</div>
+
+`;
+
+list.appendChild(item);
+
+});
+
+}
+
+updateSummary();
+
+}
+
+function updateSummary(){
+
+let income=transactions
+.filter(transaction=>transaction.type==="income")
+.reduce((sum,transaction)=>sum+transaction.amount,0);
+
+let expense=transactions
+.filter(transaction=>transaction.type==="expense")
+.reduce((sum,transaction)=>sum+transaction.amount,0);
+
+let balance=income-expense;
+
+document.getElementById("income").textContent="₹"+income;
+document.getElementById("expense").textContent="₹"+expense;
+document.getElementById("balance").textContent="₹"+balance;
+
+}
+
+function toggleDarkMode(){
+
+document.documentElement.classList.toggle("dark");
+
+}
+
+displayTransactions();
+
+</script>
+
+</body>
+</html>
